@@ -1,0 +1,87 @@
+---
+title: "Untitled"
+author: "Honeiah Karimi"
+date: "5/31/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+```{r}
+library(tidyverse)
+library(papaja)
+library(psych)
+library(apaTables)
+library(ggpubr)
+library(readr)
+library(sjPlot)
+```
+
+```{r}
+X2015 <- read_csv("2015.csv")
+View(X2015)
+
+df<-na.omit(X2015)
+View(df)
+```
+
+```{r}
+summary <- df %>%
+describe() %>%
+select(mean, sd, median, min, max)
+```
+
+
+```{r}
+apa_table(
+summary,
+caption = "Summary of World Happiness Index",)
+```
+
+
+```{r}
+mlr1 <- lm(Happiness_Score ~ Freedom + Health_Life_Expectancy + Status, data = df)
+summary(mlr1)
+```
+
+```{r}
+mlr <- lm(Happiness_Score ~ Freedom + Health_Life_Expectancy, data = df)
+summary(mlr)
+```
+
+
+```{r}
+tab_model(mlr, show.std = TRUE, show.stat = TRUE, show.zeroinf = TRUE)
+```
+
+
+```{r}
+df %>% 
+  ggplot(aes(x=Freedom, y=Happiness_Score))+
+  geom_point()+
+  geom_smooth(method="lm")
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x=Health_Life_Expectancy, y=Happiness_Score))+
+  geom_point()+
+  geom_smooth(method="lm")
+```
+
+
+```{r}
+mlr2 <- lm(Happiness_Score ~ Freedom + Health_Life_Expectancy + Status + Freedom * Status + Health_Life_Expectancy * Status, data = df)
+summary(mlr2)
+```
+
+```{r}
+plot(mlr2, c(1,2))
+```
+
+```{r}
+plot_model(mlr2, type = "pred", terms = c("Health_Life_Expectancy", "Status"))
+```
